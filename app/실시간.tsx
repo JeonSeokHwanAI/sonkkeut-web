@@ -7,7 +7,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-// 창고는 브라우저에서 돌 때만 불러온다 — 맨 위에서 불러오면 Turbopack 으로 만든 서버가 /week 에서 멈췄다 (4주차 21단계에서 겪음)
+// 창고는 브라우저에서 돌 때만 불러온다 — 맨 위에서 불러오면 Turbopack 으로 만든 서버가 /week 에서 멈췄다 (4주차 25단계 — 잠금 25-① 에서 겪음)
 
 export default function 실시간() {
   const router = useRouter();

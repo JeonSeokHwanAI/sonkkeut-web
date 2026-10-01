@@ -75,3 +75,15 @@ export async function 데이터읽기() {
 
   return { 수강생들, 클래스들, 신청들, 지난기록들, 살아있는신청, 수강생찾기 };
 }
+
+// 기본 클래스 (설계 문서 4장 · v0.7.3) — 「클래스 만들기」 에서 고르는 목록
+export type 기본클래스 = { id: number; 이름: string; 걸리는시간: number; 정원: number };
+
+export async function 기본클래스읽기() {
+  const { data, error } = await 창고
+    .from("class_templates")
+    .select("id, name, minutes, capacity")
+    .order("id");
+  막힘("class_templates", error);
+  return data!.map((r): 기본클래스 => ({ id: r.id, 이름: r.name, 걸리는시간: r.minutes, 정원: r.capacity }));
+}

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 창고 } from "@/lib/데이터";
 
-// 설계 문서 3-3 「주간」 — 표 + 빈 칸을 눌러 클래스 열기
-// 고치기 · 지우기 · 주 넘기기는 다음 바퀴.
+// 설계 문서 3-3 「주간」 — 표 + 빈 칸을 눌러 클래스 열기 + [‹] [›] 주 넘기기 (v0.7.2)
+// 고치기 · 지우기는 다음 바퀴.
 
 export type 칸클래스 = {
   id: number;
@@ -17,22 +18,24 @@ export type 칸클래스 = {
   신청수: number;
 };
 
-const 요일글 = ["월", "화", "수", "목", "금", "토", "일"];
-const 기본시간줄 = ["10:00", "14:00", "19:30"];
+export const 요일글 = ["월", "화", "수", "목", "금", "토", "일"];
+export const 기본시간줄 = ["10:00", "14:00", "19:30"];
 
 // 5장 — 숫자는 한 곳에
-const 정원최소 = 6;
-const 정원최대 = 10;
-const 처음정원 = 8;
-const 처음걸리는시간 = 120;
+export const 정원최소 = 6;
+export const 정원최대 = 10;
+export const 처음정원 = 8;
+export const 처음걸리는시간 = 120;
 
 const 시각목록 = Array.from({ length: 26 }, (_, i) => {
   const 분 = 9 * 60 + i * 30; // 09:00 ~ 21:30
   return `${String(Math.floor(분 / 60)).padStart(2, "0")}:${String(분 % 60).padStart(2, "0")}`;
 });
-const 걸리는시간목록 = [30, 60, 90, 120, 150, 180];
+export const 걸리는시간목록 = [30, 60, 90, 120, 150, 180];
+export const 시간글 = (분: number) =>
+  분 >= 60 ? `${Math.floor(분 / 60)}시간${분 % 60 ? ` ${분 % 60}분` : ""}` : `${분}분`;
 
-const 날짜보기 = (날짜: string) => {
+export const 날짜보기 = (날짜: string) => {
   const [, 달, 일] = 날짜.split("-");
   return `${Number(달)}월 ${Number(일)}일`;
 };
@@ -43,10 +46,14 @@ export default function 주간표({
   처음클래스,
   이번주,
   오늘,
+  몇주,
+  앞으로못감,
 }: {
   처음클래스: 칸클래스[];
-  이번주: string[];
+  이번주: string[]; // 지금 보고 있는 주의 7일
   오늘: string;
+  몇주: number; // 0 = 이번 주, 1 = 다음 주, -1 = 지난주
+  앞으로못감: boolean; // 4주 전 — [‹] 가 흐리다
 }) {
   // 표는 늘 창고에서 온 것을 그린다 — 실시간으로 다시 읽으면 바로 바뀐다 (설계 문서 10장)
   const 클래스들 = 처음클래스;
@@ -93,19 +100,33 @@ export default function 주간표({
   };
 
   const 지난날 = (날짜: string) => 날짜 < 오늘;
+  // 열기 창에 넣을 수 있는 날 — 보는 주에서 오늘과 그 뒤만 (3-3, v0.7.2)
+  const 열수있는날 = 이번주.filter((날짜) => !지난날(날짜));
+  const 주소 = (n: number) => (n === 0 ? "/week" : `/week?w=${n}`);
 
   return (
     <>
       <div className="mb-5 flex items-end justify-between gap-4">
         <div>
           <h1 className="font-display text-[20px] font-bold">주간</h1>
-          <p className="text-[13px] text-muted tabular-nums">
+          <p className="flex items-center gap-2 text-[13px] text-muted tabular-nums">
             {날짜보기(이번주[0])} — {날짜보기(이번주[6])}
+            {앞으로못감 ? (
+              <span aria-disabled className="rounded px-1 text-[15px] text-line">‹</span>
+            ) : (
+              <Link href={주소(몇주 - 1)} aria-label="지난주" className="rounded px-1 text-[15px] text-accent hover:bg-bg">
+                ‹
+              </Link>
+            )}
+            <Link href={주소(몇주 + 1)} aria-label="다음 주" className="rounded px-1 text-[15px] text-accent hover:bg-bg">
+              ›
+            </Link>
           </p>
         </div>
         <button
-          onClick={() => 창열기(이번주[0], 기본시간줄[0])}
-          className="rounded-lg bg-accent px-4 py-2 text-[15px] font-medium text-white"
+          onClick={() => 창열기(열수있는날[0], 기본시간줄[0])}
+          disabled={열수있는날.length === 0}
+          className="rounded-lg bg-accent px-4 py-2 text-[15px] font-medium text-white disabled:opacity-40"
         >
           클래스 열기
         </button>
@@ -182,9 +203,9 @@ export default function 주간표({
               onChange={(e) => 창바꾸기({ ...창, 날짜: e.target.value })}
               className="mt-1 w-full rounded-lg border border-line bg-card px-3 py-2 text-[15px]"
             >
-              {이번주.map((날짜, i) => (
+              {열수있는날.map((날짜) => (
                 <option key={날짜} value={날짜}>
-                  {요일글[i]} {날짜보기(날짜)}
+                  {요일글[이번주.indexOf(날짜)]} {날짜보기(날짜)}
                 </option>
               ))}
             </select>
@@ -217,7 +238,7 @@ export default function 주간표({
             >
               {걸리는시간목록.map((분) => (
                 <option key={분} value={분}>
-                  {분 >= 60 ? `${Math.floor(분 / 60)}시간${분 % 60 ? ` ${분 % 60}분` : ""}` : `${분}분`}
+                  {시간글(분)}
                 </option>
               ))}
             </select>

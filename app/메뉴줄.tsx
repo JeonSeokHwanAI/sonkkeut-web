@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 const 메뉴 = [
   { 이름: "오늘 클래스", 주소: "/today" },
   { 이름: "주간", 주소: "/week" },
+  { 이름: "클래스 만들기", 주소: "/new" }, // 3-3-1 (v0.7.3)
   { 이름: "알림판", 주소: "/notice" },
 ];
 
