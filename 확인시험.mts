@@ -1,7 +1,7 @@
 // 설계 문서 9장 확인 기준 중 「웹 오늘 클래스」 줄을 시험한다.
 // 화면이 실제로 쓰는 코드와 데이터를 그대로 쓴다.
 //   묶어서 돌리기 — npx esbuild 확인시험.mts --bundle --format=esm --platform=node --outfile=<임시>.mjs && node <임시>.mjs
-import { 찾기, type 명단줄 } from "./app/today/명단";
+import { 찾기, type 명단줄 } from "./app/(owner)/today/명단";
 import { 신청들, 클래스들, 수강생찾기, 클래스찾기, 오늘 } from "./lib/샘플데이터";
 
 const 오늘클래스들 = 클래스들

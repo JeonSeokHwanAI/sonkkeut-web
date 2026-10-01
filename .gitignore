@@ -43,3 +43,6 @@ next-env.d.ts
 # 열쇠가 든 파일 — 깃에 올리지 않는다
 .env
 .env.local
+
+# Supabase 터미널 도구가 만드는 임시 파일 (창고 번호가 들어 있다)
+supabase/.temp/

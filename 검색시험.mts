@@ -1,4 +1,4 @@
-import { 찾기, type 명단줄 } from "./app/today/명단";
+import { 찾기, type 명단줄 } from "./app/(owner)/today/명단";
 import { 신청들, 클래스들, 수강생찾기, 클래스찾기, 오늘 } from "./lib/샘플데이터";
 
 const 줄들: 명단줄[] = 신청들
