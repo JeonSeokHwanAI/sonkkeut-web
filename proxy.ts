@@ -27,6 +27,9 @@ export async function proxy(request: NextRequest) {
   const 들어옴 = 주인인가(user?.email); // 주인 메일만 (3-1)
   const 로그인화면 = request.nextUrl.pathname === "/login";
 
+  // 개인정보처리방침은 누구나 본다 — 구글 심사자가 열어 본다 (설계 문서 3.6 · v0.13)
+  if (request.nextUrl.pathname === "/privacy") return 응답;
+
   const 보내기 = (주소: string) => {
     const 다른곳 = NextResponse.redirect(new URL(주소, request.url));
     응답.cookies.getAll().forEach((c) => 다른곳.cookies.set(c));
